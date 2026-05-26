@@ -1,5 +1,7 @@
-export function App() {
-  return <div>BillBuddy</div>
+import AppRouter from "@/routes/AppRouter"
+
+function App() {
+  return <AppRouter />
 }
 
 export default App
