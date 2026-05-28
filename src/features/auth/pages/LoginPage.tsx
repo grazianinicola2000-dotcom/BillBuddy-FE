@@ -2,9 +2,10 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
+import { toast } from "sonner"
 
 import { useAppDispatch } from "@/app/hooks"
-import { loginUser } from "../authSlice"
+import { loginUser, fetchCurrentUser } from "../authSlice"
 import { useNavigate } from "react-router-dom"
 
 function LoginPage() {
@@ -17,9 +18,11 @@ function LoginPage() {
     event.preventDefault()
     try {
       await dispatch(loginUser({ email, password })).unwrap()
+      await dispatch(fetchCurrentUser()).unwrap()
       navigate("/dashboard")
+      toast.success("Login successful!")
     } catch (error) {
-      console.error("Login failed:", error)
+      toast.error(String(error))
     }
   }
   return (

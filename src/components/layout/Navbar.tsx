@@ -22,6 +22,7 @@ function Navbar() {
       <div className="flex items-center gap-4">
         <Link to="/dashboard">Dashboard</Link>
         <Link to="/groups">Groups</Link>
+        <Link to="/invites">Invites</Link>
         <Button variant="outline" onClick={handleLogout}>
           Logout
         </Button>

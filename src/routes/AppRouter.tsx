@@ -1,7 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import LoginPage from "@/features/auth/pages/LoginPage"
 import DashboardPage from "@/features/dashboard/pages/DashboardPage"
+import GroupsPage from "@/features/groups/pages/GroupsPage"
+import GroupDetailsPage from "@/features/groups/pages/GroupDetailsPage"
 import ProtectedRoute from "./ProtectedRoute"
+import InvitesPage from "@/features/invites/pages/InvitesPage"
 
 function AppRouter() {
   return (
@@ -12,8 +15,31 @@ function AppRouter() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              {" "}
-              <DashboardPage />{" "}
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/groups"
+          element={
+            <ProtectedRoute>
+              <GroupsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/groups/:groupId"
+          element={
+            <ProtectedRoute>
+              <GroupDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/invites"
+          element={
+            <ProtectedRoute>
+              <InvitesPage />
             </ProtectedRoute>
           }
         />

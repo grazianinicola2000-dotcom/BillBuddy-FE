@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { api } from "@/lib/api"
 import type { LoginRequestDTO, LoginResponseDTO, UserDTO } from "./types"
+import type { AxiosError } from "axios"
 
 interface AuthState {
   user: UserDTO | null
@@ -27,9 +28,28 @@ export const loginUser = createAsyncThunk(
         credentials
       )
       return response.data
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "login failed"
+        axiosError.response?.data?.message || "login failed"
+      )
+    }
+  }
+)
+
+export const fetchCurrentUser = createAsyncThunk(
+  "auth/fetchCurrentUser",
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await api.get<UserDTO>("/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>
+      return thunkAPI.rejectWithValue(
+        axiosError.response?.data?.message || "Failed to fetch user"
       )
     }
   }
@@ -57,6 +77,9 @@ const authSlice = createSlice({
         state.loading = false
         state.token = action.payload.token
         state.isAuthenticated = true
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false
