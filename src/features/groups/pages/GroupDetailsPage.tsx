@@ -7,20 +7,23 @@ import InviteMemberDialog from "../components/InviteMemberDialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { promoteMember, demoteMember, removeMember } from "../groupSlice"
+import { toast } from "sonner"
+import { getErrorMessage } from "@/lib/errorUtils"
 
 function GroupDetailsPage() {
   const { groupId } = useParams()
-
   const dispatch = useAppDispatch()
-
   const { selectedGroup, loading, error } = useAppSelector(
     (state) => state.groups
   )
-
   const currentUser = useAppSelector((state) => state.auth.user)
+
   const currentMember = selectedGroup?.members.find(
     (member) => member.userId === currentUser?.userId
   )
+  const isOwner = currentMember?.role === "OWNER"
   const canInviteMembers =
     currentMember?.role === "OWNER" || currentMember?.role === "ADMIN"
 
@@ -111,11 +114,84 @@ function GroupDetailsPage() {
                     </p>
                   </div>
                 </div>
-                <Badge
-                  variant={member.role === "OWNER" ? "default" : "secondary"}
-                >
-                  {member.role}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={member.role === "OWNER" ? "default" : "secondary"}
+                  >
+                    {member.role}
+                  </Badge>
+                  {isOwner && member.userId !== currentUser?.userId && (
+                    <>
+                      {member.role === "MEMBER" ? (
+                        <Button
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              await dispatch(
+                                promoteMember({
+                                  groupId: selectedGroup.groupId,
+                                  userId: member.userId,
+                                })
+                              ).unwrap()
+
+                              dispatch(fetchGroupDetails(selectedGroup.groupId))
+                            } catch (error) {
+                              toast.error(getErrorMessage(error))
+                            }
+                          }}
+                        >
+                          Promote
+                        </Button>
+                      ) : (
+                        member.role === "ADMIN" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={async () => {
+                              try {
+                                await dispatch(
+                                  demoteMember({
+                                    groupId: selectedGroup.groupId,
+                                    userId: member.userId,
+                                  })
+                                ).unwrap()
+                                dispatch(
+                                  fetchGroupDetails(selectedGroup.groupId)
+                                )
+                              } catch (error) {
+                                toast.error(getErrorMessage(error))
+                              }
+                            }}
+                          >
+                            Demote
+                          </Button>
+                        )
+                      )}
+
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={async () => {
+                          try {
+                            await dispatch(
+                              removeMember({
+                                groupId: selectedGroup.groupId,
+
+                                userId: member.userId,
+                              })
+                            ).unwrap()
+
+                            dispatch(fetchGroupDetails(selectedGroup.groupId))
+                          } catch (error) {
+                            toast.error(getErrorMessage(error))
+                          }
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
             ))}
           </CardContent>

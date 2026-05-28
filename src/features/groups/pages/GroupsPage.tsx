@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import { fetchGroups } from "../groupSlice"
 import GroupCard from "../components/GroupCard"
 import CreateGroupDialog from "../components/CreateGroupDialog"
+import Navbar from "@/components/layout/Navbar"
 
 function GroupsPage() {
   const dispatch = useAppDispatch()
@@ -13,23 +14,36 @@ function GroupsPage() {
   }, [dispatch])
 
   if (loading) {
-    return <div className="p-6">Loading groups...</div>
+    return (
+      <>
+        <Navbar />
+        <div className="p-6">Loading groups...</div>
+      </>
+    )
   }
   if (error) {
-    return <div className="p-6 text-red-500">Error: {error}</div>
+    return (
+      <>
+        <Navbar />
+        <div className="p-6 text-red-500">Error: {error}</div>
+      </>
+    )
   }
   return (
-    <div className="p-6">
-      <h1 className="mb-6 text-2xl font-bold">Your Groups</h1>
-      <div className="my-4">
-        <CreateGroupDialog />
+    <>
+      <Navbar />
+      <div className="p-6">
+        <h1 className="mb-6 text-2xl font-bold">Your Groups</h1>
+        <div className="my-4">
+          <CreateGroupDialog />
+        </div>
+        <div className="space-y-4">
+          {groups?.content?.map((group) => (
+            <GroupCard key={group.groupId} group={group} />
+          ))}
+        </div>
       </div>
-      <div className="space-y-4">
-        {groups?.content?.map((group) => (
-          <GroupCard key={group.groupId} group={group} />
-        ))}
-      </div>
-    </div>
+    </>
   )
 }
 

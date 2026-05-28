@@ -74,6 +74,77 @@ export const createGroup = createAsyncThunk(
   }
 )
 
+export const promoteMember = createAsyncThunk(
+  "groups/promoteMember",
+  async (
+    { groupId, userId }: { groupId: string; userId: string },
+    thunkAPI
+  ) => {
+    try {
+      const token = localStorage.getItem("token")
+      await api.patch(
+        `/groups/${groupId}/members/${userId}/promote`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return { groupId, userId }
+    } catch (error) {
+      const axiosError = error as AxiosError
+      return thunkAPI.rejectWithValue(axiosError.response?.data)
+    }
+  }
+)
+
+export const demoteMember = createAsyncThunk(
+  "groups/demoteMember",
+  async (
+    { groupId, userId }: { groupId: string; userId: string },
+    thunkAPI
+  ) => {
+    try {
+      const token = localStorage.getItem("token")
+      await api.patch(
+        `/groups/${groupId}/members/${userId}/demote`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return { groupId, userId }
+    } catch (error) {
+      const axiosError = error as AxiosError
+      return thunkAPI.rejectWithValue(axiosError.response?.data)
+    }
+  }
+)
+
+export const removeMember = createAsyncThunk(
+  "groups/removeMember",
+  async (
+    { groupId, userId }: { groupId: string; userId: string },
+    thunkAPI
+  ) => {
+    try {
+      const token = localStorage.getItem("token")
+      await api.delete(`/groups/${groupId}/members/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return { groupId, userId }
+    } catch (error) {
+      const axiosError = error as AxiosError
+      return thunkAPI.rejectWithValue(axiosError.response?.data)
+    }
+  }
+)
+
 const groupsSlice = createSlice({
   name: "groups",
   initialState,
