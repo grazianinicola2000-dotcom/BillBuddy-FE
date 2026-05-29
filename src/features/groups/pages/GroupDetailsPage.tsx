@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import { fetchGroupDetails } from "../groupSlice"
+import { fetchGroupExpenses } from "@/features/expenses/expenseSlice"
 import Navbar from "@/components/layout/Navbar"
 import InviteMemberDialog from "../components/InviteMemberDialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -11,6 +12,9 @@ import { Button } from "@/components/ui/button"
 import { promoteMember, demoteMember, removeMember } from "../groupSlice"
 import { toast } from "sonner"
 import { getErrorMessage } from "@/lib/errorUtils"
+import CreateExpenseDialog from "@/features/expenses/components/CreateExpenseDialog"
+import ExpenseCard from "@/features/expenses/components/ExpenseCard"
+import { fetchGroupSummary } from "@/features/expenses/balanceSlice"
 
 function GroupDetailsPage() {
   const { groupId } = useParams()
@@ -19,6 +23,10 @@ function GroupDetailsPage() {
     (state) => state.groups
   )
   const currentUser = useAppSelector((state) => state.auth.user)
+  const { groupExpenses } = useAppSelector((state) => state.expenses)
+  const { groupSummary } = useAppSelector((state) => state.balances)
+
+  const summary = groupSummary?.[0]
 
   const currentMember = selectedGroup?.members.find(
     (member) => member.userId === currentUser?.userId
@@ -30,6 +38,8 @@ function GroupDetailsPage() {
   useEffect(() => {
     if (groupId) {
       dispatch(fetchGroupDetails(groupId))
+      dispatch(fetchGroupExpenses(groupId))
+      dispatch(fetchGroupSummary(groupId))
     }
   }, [dispatch, groupId])
 
@@ -78,6 +88,10 @@ function GroupDetailsPage() {
                 {canInviteMembers && (
                   <InviteMemberDialog groupId={selectedGroup.groupId} />
                 )}
+                <CreateExpenseDialog
+                  groupId={selectedGroup.groupId}
+                  members={selectedGroup.members}
+                />
               </div>
               <p className="mt-2 text-muted-foreground">
                 {selectedGroup.description}
@@ -88,6 +102,57 @@ function GroupDetailsPage() {
               </p>
             </div>
           </CardHeader>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Balances</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Total Expenses</p>
+
+                <p className="text-xl font-bold">
+                  {summary?.totalExpenses} {summary?.currencyCode}
+                </p>
+              </div>
+
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Total Settled</p>
+
+                <p className="text-xl font-bold">
+                  {summary?.totalSettled} {summary?.currencyCode}
+                </p>
+              </div>
+
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">
+                  Outstanding Debt
+                </p>
+
+                <p className="text-xl font-bold">
+                  {summary?.totalOutstanding} {summary?.currencyCode}
+                </p>
+              </div>
+            </div>
+            <div className="border-t pt-4">
+              {summary?.netBalances.map((balance) => (
+                <div key={balance.userId} className="flex justify-between py-2">
+                  <span>{balance.username}</span>
+                  <span
+                    className={
+                      balance.netBalance >= 0
+                        ? "font-semibold text-green-600"
+                        : "font-semibold text-red-600"
+                    }
+                  >
+                    {balance.netBalance} {balance.currencyCode}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
         </Card>
 
         <Card>
@@ -194,6 +259,43 @@ function GroupDetailsPage() {
                 </div>
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Suggested Payments</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {summary?.optimizedPayments.map((payment, index) => (
+              <div key={index} className="flex justify-between py-2">
+                <span>
+                  {payment.fromUsername}
+                  {" → "}
+                  {payment.toUsername}
+                </span>
+                <span>
+                  {payment.amount} {payment.currencyCode}
+                </span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Expenses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {groupExpenses?.content.length === 0 ? (
+              <p className="text-muted-foreground">No expenses yet</p>
+            ) : (
+              <div className="space-y-4">
+                {groupExpenses?.content.map((expense) => (
+                  <ExpenseCard key={expense.expenseId} expense={expense} />
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
