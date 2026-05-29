@@ -1,5 +1,11 @@
 import type { PageResponse } from "@/types/pagination"
-import type { ExpenseDTO, ExpenseCategoryDTO, CreateExpenseDTO } from "./types"
+import type {
+  ExpenseDTO,
+  ExpenseCategoryDTO,
+  CreateExpenseDTO,
+  CreateSettlementDTO,
+  SettlementDTO,
+} from "./types"
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import type { AxiosError } from "axios"
 import { api } from "@/lib/api"
@@ -118,13 +124,31 @@ export const createExpense = createAsyncThunk(
   }
 )
 
+export const createSettlement = createAsyncThunk(
+  "expenses/createSettlement",
+  async (body: CreateSettlementDTO, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await api.post<SettlementDTO>("/settlements", body, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError<{
+        message: string
+        errors?: string[]
+      }>
+      return thunkAPI.rejectWithValue(axiosError.response?.data)
+    }
+  }
+)
+
 const expenseSlice = createSlice({
   name: "expenses",
-
   initialState,
-
   reducers: {},
-
   extraReducers: (builder) => {
     builder
       .addCase(fetchCategories.fulfilled, (state, action) => {

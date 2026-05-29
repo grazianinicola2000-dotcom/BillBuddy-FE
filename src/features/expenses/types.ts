@@ -70,3 +70,39 @@ export interface GroupBalanceSummaryDTO {
   netBalances: NetBalanceDTO[]
   optimizedPayments: OptimizedPaymentDTO[]
 }
+
+export interface SplitBalanceDTO {
+  expenseId: string
+  expenseTitle: string
+  expenseSplitId: string
+  debtorId: string
+  debtorUsername: string
+  creditorId: string
+  creditorUsername: string
+  originalAmount: number
+  amountPaid: number
+  remainingDebt: number
+  currencyCode: CurrencyCode
+  settled: boolean
+}
+
+export interface CreateSettlementDTO {
+  expenseSplitId: string
+  amount: number
+  currencyCode: CurrencyCode
+  note?: string
+}
+
+export interface SettlementDTO {
+  settlementId: string
+  payerId: string
+  payerUsername: string
+  receiverId: string
+  receiverUsername: string
+  groupId: string
+  groupName: string
+  amount: number
+  currencyCode: CurrencyCode
+  note?: string
+  createdAt: string
+}
