@@ -1,11 +1,16 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import type { AxiosError } from "axios"
 import { api } from "@/lib/api"
-import type { GroupBalanceSummaryDTO, SplitBalanceDTO } from "./types"
+import type {
+  GroupBalanceSummaryDTO,
+  SplitBalanceDTO,
+  GlobalBalanceSummaryDTO,
+} from "./types"
 
 interface BalanceState {
   groupSummary: GroupBalanceSummaryDTO[]
   groupSplitBalances: SplitBalanceDTO[]
+  globalSummary: GlobalBalanceSummaryDTO[]
   loading: boolean
   error: string | null
 }
@@ -13,6 +18,7 @@ interface BalanceState {
 const initialState: BalanceState = {
   groupSummary: [],
   groupSplitBalances: [],
+  globalSummary: [],
   loading: false,
   error: null,
 }
@@ -59,6 +65,27 @@ export const fetchGroupSummary = createAsyncThunk(
   }
 )
 
+export const fetchGlobalSummary = createAsyncThunk(
+  "balances/fetchGlobalSummary",
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await api.get<GlobalBalanceSummaryDTO[]>(
+        "/balances/users/summary",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError
+      return thunkAPI.rejectWithValue(axiosError.response?.data)
+    }
+  }
+)
+
 const balanceSlice = createSlice({
   name: "balances",
   initialState,
@@ -76,6 +103,9 @@ const balanceSlice = createSlice({
       })
       .addCase(fetchGroupSplitBalances.fulfilled, (state, action) => {
         state.groupSplitBalances = action.payload
+      })
+      .addCase(fetchGlobalSummary.fulfilled, (state, action) => {
+        state.globalSummary = action.payload
       })
       .addCase(fetchGroupSummary.rejected, (state, action) => {
         state.loading = false

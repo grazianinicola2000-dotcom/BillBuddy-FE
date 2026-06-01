@@ -13,6 +13,7 @@ import { api } from "@/lib/api"
 interface ExpensesState {
   personalExpenses: PageResponse<ExpenseDTO> | null
   groupExpenses: PageResponse<ExpenseDTO> | null
+  myGroupExpenses: PageResponse<ExpenseDTO> | null
   categories: ExpenseCategoryDTO[]
   selectedExpense: ExpenseDTO | null
   loading: boolean
@@ -22,6 +23,7 @@ interface ExpensesState {
 const initialState: ExpensesState = {
   personalExpenses: null,
   groupExpenses: null,
+  myGroupExpenses: null,
   categories: [],
   selectedExpense: null,
   loading: false,
@@ -61,6 +63,37 @@ export const fetchPersonalExpenses = createAsyncThunk(
       const response = await api.get<PageResponse<ExpenseDTO>>(
         "/expenses/me/paid",
         {
+          params: {
+            expenseType: "PERSONAL",
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError<{
+        message: string
+      }>
+      return thunkAPI.rejectWithValue(
+        axiosError.response?.data || "Failed to fetch expenses"
+      )
+    }
+  }
+)
+
+export const fetchMyGroupExpenses = createAsyncThunk(
+  "expenses/fetchMyGroupExpenses",
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await api.get<PageResponse<ExpenseDTO>>(
+        "/expenses/me/paid",
+        {
+          params: {
+            expenseType: "GROUP",
+          },
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -159,6 +192,9 @@ const expenseSlice = createSlice({
       })
       .addCase(fetchGroupExpenses.fulfilled, (state, action) => {
         state.groupExpenses = action.payload
+      })
+      .addCase(fetchMyGroupExpenses.fulfilled, (state, action) => {
+        state.myGroupExpenses = action.payload
       })
       .addCase(createExpense.fulfilled, (state, action) => {
         if (state.groupExpenses) {

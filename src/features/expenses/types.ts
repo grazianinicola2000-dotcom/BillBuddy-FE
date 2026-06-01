@@ -106,3 +106,15 @@ export interface SettlementDTO {
   note?: string
   createdAt: string
 }
+
+export interface GlobalBalanceSummaryDTO {
+  userId: string
+  username: string
+  currencyCode: CurrencyCode
+  totalSpent: number
+  totalReceived: number
+  currentExposure: number
+  totalOwed: number
+  totalToReceive: number
+  netBalance: number
+}
