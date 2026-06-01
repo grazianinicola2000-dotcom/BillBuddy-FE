@@ -6,9 +6,10 @@ import { useState } from "react"
 
 interface Props {
   expense: ExpenseDTO
+  showPaidBy?: boolean
 }
 
-function ExpenseCard({ expense }: Props) {
+function ExpenseCard({ expense, showPaidBy = true }: Props) {
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -43,8 +44,12 @@ function ExpenseCard({ expense }: Props) {
             ))}
           </div>
           <div className="mt-2 text-sm text-muted-foreground">
-            Paid by {expense.paidByUsername}
-            {" • "}
+            {showPaidBy && (
+              <>
+                Paid by {expense.paidByUsername}
+                {" • "}
+              </>
+            )}
             {new Date(expense.expenseDate).toLocaleDateString()}
           </div>
         </CardContent>

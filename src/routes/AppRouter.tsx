@@ -5,6 +5,7 @@ import GroupsPage from "@/features/groups/pages/GroupsPage"
 import GroupDetailsPage from "@/features/groups/pages/GroupDetailsPage"
 import ProtectedRoute from "./ProtectedRoute"
 import InvitesPage from "@/features/invites/pages/InvitesPage"
+import PersonalExpensesPage from "@/features/expenses/pages/PersonalExpensePage"
 
 function AppRouter() {
   return (
@@ -40,6 +41,14 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <InvitesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/expenses"
+          element={
+            <ProtectedRoute>
+              <PersonalExpensesPage />
             </ProtectedRoute>
           }
         />
