@@ -8,6 +8,11 @@ import {
 import { useEffect } from "react"
 import DashboardStatCard from "../components/DashboardStatCard"
 import ExpenseCard from "@/features/expenses/components/ExpenseCard"
+import DashboardCategoryChart from "../components/DashboardCategoryChart"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import DashboardMonthlyChart from "../components/DashboardMonthlyChart"
+import TopCategoriesCard from "../components/TopCategoriesCard"
+import TopGroupsChart from "../components/TopGroupChart"
 
 function DashboardPage() {
   const dispatch = useAppDispatch()
@@ -50,6 +55,49 @@ function DashboardPage() {
     )
     .slice(0, 5)
 
+  const allExpenses = [
+    ...(personalExpenses?.content ?? []),
+    ...(myGroupExpenses?.content ?? []),
+  ]
+
+  const expensesByCategory = allExpenses.reduce(
+    (acc, expense) => {
+      const category = expense.categoryName ?? "Uncategorized"
+      acc[category] = (acc[category] || 0) + expense.totalAmount
+      return acc
+    },
+    {} as Record<string, number>
+  )
+
+  const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"]
+
+  const pieData = Object.entries(expensesByCategory).map(
+    ([name, value], index) => ({
+      name,
+      value,
+      fill: COLORS[index % COLORS.length],
+    })
+  )
+
+  const topCategories = [...pieData]
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5)
+
+  const groupTotals = (myGroupExpenses?.content ?? []).reduce(
+    (acc, expense) => {
+      const group = expense.groupName ?? "Unknown"
+      acc[group] = (acc[group] ?? 0) + expense.totalAmount
+      return acc
+    },
+    {} as Record<string, number>
+  )
+
+  const topGroups = Object.entries(groupTotals)
+    .map(([name, value]) => ({
+      name,
+      value,
+    }))
+    .sort((a, b) => b.value - a.value)
   return (
     <>
       <Navbar />
@@ -82,9 +130,38 @@ function DashboardPage() {
           }
         />
       </div>
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Expenses by Category</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <DashboardCategoryChart data={pieData} />
+            <TopCategoriesCard data={topCategories} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Expenses Over Time</CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          <TopGroupsChart data={topGroups} />
+        </CardContent>
+      </Card>
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Top Groups</CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          <DashboardMonthlyChart expenses={allExpenses} />
+        </CardContent>
+      </Card>
       <div className="mt-8">
         <h2 className="mb-4 text-xl font-semibold">Recent Expenses</h2>
-
         <div className="space-y-4">
           {recentExpenses.map((expense) => (
             <ExpenseCard key={expense.expenseId} expense={expense} />
