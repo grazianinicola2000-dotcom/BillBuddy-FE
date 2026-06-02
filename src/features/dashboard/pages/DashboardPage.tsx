@@ -5,7 +5,14 @@ import {
   fetchMyGroupExpenses,
   fetchPersonalExpenses,
 } from "@/features/expenses/expenseSlice"
-import { useEffect } from "react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useEffect, useState } from "react"
 import DashboardStatCard from "../components/DashboardStatCard"
 import ExpenseCard from "@/features/expenses/components/ExpenseCard"
 import DashboardCategoryChart from "../components/DashboardCategoryChart"
@@ -16,10 +23,15 @@ import TopGroupsChart from "../components/TopGroupChart"
 
 function DashboardPage() {
   const dispatch = useAppDispatch()
+
+  const currentYear = new Date().getFullYear()
+
   const { personalExpenses, myGroupExpenses } = useAppSelector(
     (state) => state.expenses
   )
   const { globalSummary } = useAppSelector((state) => state.balances)
+
+  const [selectedYear, setSelectedYear] = useState(currentYear)
 
   useEffect(() => {
     dispatch(fetchPersonalExpenses())
@@ -60,7 +72,21 @@ function DashboardPage() {
     ...(myGroupExpenses?.content ?? []),
   ]
 
-  const expensesByCategory = allExpenses.reduce(
+  const filteredExpenses = allExpenses.filter(
+    (expense) => new Date(expense.expenseDate).getFullYear() === selectedYear
+  )
+
+  const availableYears = [
+    ...new Set(
+      allExpenses.map((expense) => new Date(expense.expenseDate).getFullYear())
+    ),
+  ]
+  if (!availableYears.includes(currentYear)) {
+    availableYears.push(currentYear)
+  }
+  availableYears.sort((a, b) => b - a)
+
+  const expensesByCategory = filteredExpenses.reduce(
     (acc, expense) => {
       const category = expense.categoryName ?? "Uncategorized"
       acc[category] = (acc[category] || 0) + expense.totalAmount
@@ -83,14 +109,16 @@ function DashboardPage() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 5)
 
-  const groupTotals = (myGroupExpenses?.content ?? []).reduce(
-    (acc, expense) => {
-      const group = expense.groupName ?? "Unknown"
-      acc[group] = (acc[group] ?? 0) + expense.totalAmount
-      return acc
-    },
-    {} as Record<string, number>
-  )
+  const groupTotals = filteredExpenses
+    .filter((expense) => expense.expenseType === "GROUP")
+    .reduce(
+      (acc, expense) => {
+        const group = expense.groupName ?? "Unknown"
+        acc[group] = (acc[group] ?? 0) + expense.totalAmount
+        return acc
+      },
+      {} as Record<string, number>
+    )
 
   const topGroups = Object.entries(groupTotals)
     .map(([name, value]) => ({
@@ -101,6 +129,28 @@ function DashboardPage() {
   return (
     <>
       <Navbar />
+
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+
+        <Select
+          value={selectedYear.toString()}
+          onValueChange={(value) => setSelectedYear(Number(value))}
+        >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+
+          <SelectContent>
+            {availableYears.map((year) => (
+              <SelectItem key={year} value={year.toString()}>
+                {year}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <DashboardStatCard
           title="Personal Expenses"
@@ -130,6 +180,7 @@ function DashboardPage() {
           }
         />
       </div>
+
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Expenses by Category</CardTitle>
@@ -144,20 +195,19 @@ function DashboardPage() {
 
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Expenses Over Time</CardTitle>
+          <CardTitle>Top Groups</CardTitle>
         </CardHeader>
-
         <CardContent>
           <TopGroupsChart data={topGroups} />
         </CardContent>
       </Card>
+
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Top Groups</CardTitle>
+          <CardTitle>Expenses Over Time</CardTitle>
         </CardHeader>
-
         <CardContent>
-          <DashboardMonthlyChart expenses={allExpenses} />
+          <DashboardMonthlyChart expenses={filteredExpenses} />
         </CardContent>
       </Card>
       <div className="mt-8">
