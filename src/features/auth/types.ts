@@ -12,3 +12,12 @@ export interface UserDTO {
 export interface LoginResponseDTO {
   token: string
 }
+
+export interface RegisterRequestDTO {
+  name: string
+  surname: string
+  username: string
+  email: string
+  password: string
+  dateOfBirth: string
+}

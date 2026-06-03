@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { api } from "@/lib/api"
-import type { LoginRequestDTO, LoginResponseDTO, UserDTO } from "./types"
+import type {
+  LoginRequestDTO,
+  LoginResponseDTO,
+  RegisterRequestDTO,
+  UserDTO,
+} from "./types"
 import type { AxiosError } from "axios"
 
 interface AuthState {
@@ -18,6 +23,21 @@ const initialState: AuthState = {
   loading: false,
   error: null,
 }
+
+export const registerUser = createAsyncThunk(
+  "auth/register",
+  async (userData: RegisterRequestDTO, thunkAPI) => {
+    try {
+      const response = await api.post("/auth/register", userData)
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>
+      return thunkAPI.rejectWithValue(
+        axiosError.response?.data || "Registration failed"
+      )
+    }
+  }
+)
 
 export const loginUser = createAsyncThunk(
   "auth/login",

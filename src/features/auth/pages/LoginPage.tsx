@@ -6,7 +6,7 @@ import { toast } from "sonner"
 
 import { useAppDispatch } from "@/app/hooks"
 import { loginUser, fetchCurrentUser } from "../authSlice"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 function LoginPage() {
   const dispatch = useAppDispatch()
@@ -50,6 +50,12 @@ function LoginPage() {
           <Button type="submit" className="w-full">
             Login
           </Button>
+          <p className="text-center text-sm">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-primary">
+              Register
+            </Link>
+          </p>
         </form>
       </Card>
     </div>

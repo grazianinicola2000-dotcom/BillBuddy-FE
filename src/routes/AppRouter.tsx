@@ -6,12 +6,14 @@ import GroupDetailsPage from "@/features/groups/pages/GroupDetailsPage"
 import ProtectedRoute from "./ProtectedRoute"
 import InvitesPage from "@/features/invites/pages/InvitesPage"
 import PersonalExpensesPage from "@/features/expenses/pages/PersonalExpensePage"
+import RegisterPage from "@/features/auth/pages/RegisterPage"
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route
           path="/dashboard"
           element={
