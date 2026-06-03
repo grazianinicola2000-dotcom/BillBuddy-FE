@@ -15,6 +15,7 @@ interface ExpensesState {
   groupExpenses: PageResponse<ExpenseDTO> | null
   myGroupExpenses: PageResponse<ExpenseDTO> | null
   categories: ExpenseCategoryDTO[]
+  settlements: SettlementDTO[]
   selectedExpense: ExpenseDTO | null
   loading: boolean
   error: string | null
@@ -25,6 +26,7 @@ const initialState: ExpensesState = {
   groupExpenses: null,
   myGroupExpenses: null,
   categories: [],
+  settlements: [],
   selectedExpense: null,
   loading: false,
   error: null,
@@ -178,6 +180,29 @@ export const createSettlement = createAsyncThunk(
   }
 )
 
+export const fetchGroupSettlements = createAsyncThunk(
+  "expenses/fetchGroupSettlements",
+  async (groupId: string, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await api.get<SettlementDTO[]>(
+        `/settlements/groups/${groupId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>
+      return thunkAPI.rejectWithValue(
+        axiosError.response?.data || "Failed to fetch settlements"
+      )
+    }
+  }
+)
+
 const expenseSlice = createSlice({
   name: "expenses",
   initialState,
@@ -200,6 +225,12 @@ const expenseSlice = createSlice({
         if (state.groupExpenses) {
           state.groupExpenses.content.unshift(action.payload)
         }
+      })
+      .addCase(createSettlement.fulfilled, (state, action) => {
+        state.settlements.unshift(action.payload)
+      })
+      .addCase(fetchGroupSettlements.fulfilled, (state, action) => {
+        state.settlements = action.payload
       })
   },
 })

@@ -2,7 +2,10 @@ import { useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import { fetchGroupDetails } from "../groupSlice"
-import { fetchGroupExpenses } from "@/features/expenses/expenseSlice"
+import {
+  fetchGroupExpenses,
+  fetchGroupSettlements,
+} from "@/features/expenses/expenseSlice"
 import Navbar from "@/components/layout/Navbar"
 import InviteMemberDialog from "../components/InviteMemberDialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -17,6 +20,7 @@ import OpenDebtsCard from "../../expenses/components/OpenDebtsCard"
 import BalanceSummaryCard from "@/features/expenses/components/BalanceSummaryCard"
 import SuggestedPaymentsCard from "@/features/expenses/components/SuggestedPaymentsCard"
 import MembersCard from "@/features/expenses/components/MembersCard"
+import SettlementHistoryCard from "../components/SettlementHistoryCard"
 
 function GroupDetailsPage() {
   const { groupId } = useParams()
@@ -25,7 +29,9 @@ function GroupDetailsPage() {
     (state) => state.groups
   )
   const currentUser = useAppSelector((state) => state.auth.user)
-  const { groupExpenses } = useAppSelector((state) => state.expenses)
+  const { groupExpenses, settlements } = useAppSelector(
+    (state) => state.expenses
+  )
   const { groupSummary, groupSplitBalances } = useAppSelector(
     (state) => state.balances
   )
@@ -44,6 +50,7 @@ function GroupDetailsPage() {
       dispatch(fetchGroupExpenses(groupId))
       dispatch(fetchGroupSummary(groupId))
       dispatch(fetchGroupSplitBalances(groupId))
+      dispatch(fetchGroupSettlements(groupId))
     }
   }, [dispatch, groupId])
 
@@ -108,9 +115,9 @@ function GroupDetailsPage() {
           </CardHeader>
         </Card>
 
-        <BalanceSummaryCard summary={summary} />
-
         <MembersCard group={selectedGroup} currentUser={currentUser} />
+
+        <BalanceSummaryCard summary={summary} />
 
         <SuggestedPaymentsCard payments={summary?.optimizedPayments ?? []} />
         <OpenDebtsCard
@@ -119,6 +126,7 @@ function GroupDetailsPage() {
           groupId={selectedGroup.groupId}
           currencyCode={summary?.currencyCode}
         />
+        <SettlementHistoryCard settlements={settlements} />
         <Card>
           <CardHeader>
             <CardTitle>Expenses</CardTitle>
