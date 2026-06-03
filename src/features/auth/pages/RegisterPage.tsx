@@ -36,8 +36,8 @@ function RegisterPage() {
     }
   }
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Card className="w-full max-w-sm p-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+      <Card className="w-full max-w-md p-8 shadow-lg">
         <form onSubmit={handleRegistration} className="space-y-4">
           <div className="text-center">
             <h1 className="text-3xl font-bold">Create your account</h1>
@@ -47,30 +47,34 @@ function RegisterPage() {
             </p>
           </div>
 
-          <Input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-          <Input
-            type="text"
-            placeholder="Surname"
-            value={surname}
-            onChange={(event) => setSurname(event.target.value)}
-          />
-          <Input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-          />
-          <Input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
+          <div className="grid gap-4 md:grid-cols-2">
+            <Input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+            <Input
+              type="text"
+              placeholder="Surname"
+              value={surname}
+              onChange={(event) => setSurname(event.target.value)}
+            />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+            />
+            <Input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </div>
           <div className="space-y-2">
             <Input
               type="password"
@@ -104,6 +108,7 @@ function RegisterPage() {
           <Button type="submit" className="w-full">
             Confirm Registration
           </Button>
+
           <p className="text-center text-sm">
             Already have an account?{" "}
             <Link to="/login" className="text-primary">

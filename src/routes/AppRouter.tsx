@@ -7,6 +7,7 @@ import ProtectedRoute from "./ProtectedRoute"
 import InvitesPage from "@/features/invites/pages/InvitesPage"
 import PersonalExpensesPage from "@/features/expenses/pages/PersonalExpensePage"
 import RegisterPage from "@/features/auth/pages/RegisterPage"
+import HomePage from "@/components/layout/HomePage"
 
 function AppRouter() {
   return (
@@ -14,6 +15,7 @@ function AppRouter() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/" element={<HomePage />} />
         <Route
           path="/dashboard"
           element={
@@ -54,7 +56,7 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
