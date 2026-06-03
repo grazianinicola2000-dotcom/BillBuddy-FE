@@ -7,6 +7,7 @@ export interface UserDTO {
   userId: string
   username: string
   email: string
+  avatarUrl: string
 }
 
 export interface LoginResponseDTO {
