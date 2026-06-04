@@ -203,6 +203,26 @@ export const fetchGroupSettlements = createAsyncThunk(
   }
 )
 
+export const deleteExpense = createAsyncThunk(
+  "expenses/deleteExpense",
+  async (expenseId: string, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token")
+      await api.delete(`/expenses/${expenseId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return expenseId
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>
+      return thunkAPI.rejectWithValue(
+        axiosError.response?.data?.message ?? "Failed to delete expense"
+      )
+    }
+  }
+)
+
 const expenseSlice = createSlice({
   name: "expenses",
   initialState,
@@ -231,6 +251,20 @@ const expenseSlice = createSlice({
       })
       .addCase(fetchGroupSettlements.fulfilled, (state, action) => {
         state.settlements = action.payload
+      })
+      .addCase(deleteExpense.fulfilled, (state, action) => {
+        if (state.personalExpenses) {
+          state.personalExpenses.content =
+            state.personalExpenses.content.filter(
+              (expense) => expense.expenseId !== action.payload
+            )
+        }
+
+        if (state.groupExpenses) {
+          state.groupExpenses.content = state.groupExpenses.content.filter(
+            (expense) => expense.expenseId !== action.payload
+          )
+        }
       })
   },
 })

@@ -6,6 +6,21 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { useAppDispatch } from "@/app/hooks"
+import { deleteExpense } from "../expenseSlice"
+import { toast } from "sonner"
+import {
+  AlertDialogContent,
+  AlertDialogCancel,
+  AlertDialogAction,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogFooter,
+} from "@/components/ui/alert-dialog"
 
 interface Props {
   expense: ExpenseDTO
@@ -14,6 +29,20 @@ interface Props {
 }
 
 function ExpenseDetailsDialog({ expense, open, onOpenChange }: Props) {
+  const dispatch = useAppDispatch()
+
+  const handleDelete = async () => {
+    try {
+      await dispatch(deleteExpense(expense.expenseId)).unwrap()
+
+      toast.success("Expense deleted")
+
+      onOpenChange(false)
+    } catch (error) {
+      toast.error(String(error))
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -66,6 +95,33 @@ function ExpenseDetailsDialog({ expense, open, onOpenChange }: Props) {
             ))}
           </div>
         </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive">Delete Expense</Button>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+
+              <AlertDialogDescription>
+                This action cannot be undone. The expense will be permanently
+                deleted.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+              <AlertDialogAction
+                className="bg-red-600 hover:bg-red-700"
+                onClick={handleDelete}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   )
