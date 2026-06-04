@@ -145,6 +145,33 @@ export const removeMember = createAsyncThunk(
   }
 )
 
+export const uploadGroupImage = createAsyncThunk(
+  "groups/uploadGroupImage",
+  async ({ groupId, file }: { groupId: string; file: File }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token")
+      const formData = new FormData()
+      formData.append("group_img", file)
+      const response = await api.patch<GroupDetailsDTO>(
+        `/groups/${groupId}/image`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>
+      return thunkAPI.rejectWithValue(
+        axiosError.response?.data?.message ?? "Failed to upload group image"
+      )
+    }
+  }
+)
+
 const groupsSlice = createSlice({
   name: "groups",
   initialState,
@@ -166,6 +193,11 @@ const groupsSlice = createSlice({
         if (state.groups) {
           state.groups.content.unshift(action.payload)
           state.groups.totalElements += 1
+        }
+      })
+      .addCase(uploadGroupImage.fulfilled, (state, action) => {
+        if (state.selectedGroup) {
+          state.selectedGroup.imageUrl = action.payload.imageUrl
         }
       })
       .addCase(fetchGroups.rejected, (state, action) => {

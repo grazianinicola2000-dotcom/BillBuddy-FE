@@ -29,7 +29,9 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <div className="mb-8 text-center">
         <div className="mb-20">
-          <h1 className="text-5xl font-bold">BillBuddy</h1>
+          <Link to={"/"}>
+            <h1 className="text-5xl font-bold">BillBuddy</h1>
+          </Link>
 
           <p className="mt-3 text-muted-foreground">
             Manage personal and shared expenses with ease

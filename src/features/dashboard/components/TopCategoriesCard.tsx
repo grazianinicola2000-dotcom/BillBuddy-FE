@@ -10,7 +10,7 @@ interface Props {
 
 function TopCategoriesCard({ data }: Props) {
   return (
-    <Card>
+    <Card className="mt-8 shadow-md transition-shadow hover:shadow-lg">
       <CardHeader>
         <CardTitle>Top Categories</CardTitle>
       </CardHeader>

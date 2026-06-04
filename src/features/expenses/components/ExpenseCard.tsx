@@ -14,7 +14,7 @@ function ExpenseCard({ expense, showPaidBy = true }: Props) {
   return (
     <>
       <Card
-        className="cursor-pointer transition hover:shadow-md"
+        className="cursor-pointer shadow-md transition transition-shadow hover:shadow-lg"
         onClick={() => setOpen(true)}
       >
         <CardContent className="p-4">

@@ -1,5 +1,4 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
-import Navbar from "@/components/layout/Navbar"
 import { fetchGlobalSummary } from "@/features/expenses/balanceSlice"
 import {
   fetchMyGroupExpenses,
@@ -14,12 +13,13 @@ import {
 } from "@/components/ui/select"
 import { useEffect, useState } from "react"
 import DashboardStatCard from "../components/DashboardStatCard"
-import ExpenseCard from "@/features/expenses/components/ExpenseCard"
 import DashboardCategoryChart from "../components/DashboardCategoryChart"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import DashboardMonthlyChart from "../components/DashboardMonthlyChart"
 import TopCategoriesCard from "../components/TopCategoriesCard"
 import TopGroupsChart from "../components/TopGroupChart"
+import PageLayout from "@/components/layout/PageLayout"
+import RecentExpenseCard from "../components/RecentExpenseCard"
 
 function DashboardPage() {
   const dispatch = useAppDispatch()
@@ -127,98 +127,110 @@ function DashboardPage() {
     }))
     .sort((a, b) => b.value - a.value)
   return (
-    <>
-      <Navbar />
+    <PageLayout>
+      <div className="p-6">
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
 
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+          <Select
+            value={selectedYear.toString()}
+            onValueChange={(value) => setSelectedYear(Number(value))}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
 
-        <Select
-          value={selectedYear.toString()}
-          onValueChange={(value) => setSelectedYear(Number(value))}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-
-          <SelectContent>
-            {availableYears.map((year) => (
-              <SelectItem key={year} value={year.toString()}>
-                {year}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <DashboardStatCard
-          title="Personal Expenses"
-          value={`${totalPersonalExpenses} €`}
-        />
-        <DashboardStatCard
-          title="Group Expenses"
-          value={`${totalGroupExpenses} €`}
-        />
-        <DashboardStatCard
-          title="You Owe"
-          value={`${summary?.totalOwed ?? "0.00"} €`}
-        />
-        <DashboardStatCard
-          title="To Receive"
-          value={`${summary?.totalToReceive ?? "0.00"} €`}
-        />
-        <DashboardStatCard
-          title="Actual Money Spent"
-          value={`${actualMoneySpent.toFixed(2)} €`}
-        />
-        <DashboardStatCard
-          title="Net Balance"
-          value={`${summary?.netBalance ?? "0.00"} €`}
-          valueClassName={
-            (summary?.netBalance ?? 0) >= 0 ? "text-green-500" : "text-red-500"
-          }
-        />
-      </div>
-
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Expenses by Category</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 lg:grid-cols-2">
-            <DashboardCategoryChart data={pieData} />
-            <TopCategoriesCard data={topCategories} />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Top Groups</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TopGroupsChart data={topGroups} />
-        </CardContent>
-      </Card>
-
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Expenses Over Time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DashboardMonthlyChart expenses={filteredExpenses} />
-        </CardContent>
-      </Card>
-      <div className="mt-8">
-        <h2 className="mb-4 text-xl font-semibold">Recent Expenses</h2>
-        <div className="space-y-4">
-          {recentExpenses.map((expense) => (
-            <ExpenseCard key={expense.expenseId} expense={expense} />
-          ))}
+            <SelectContent>
+              {availableYears.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+
+        <div className="grid gap-3 lg:grid-cols-3 lg:gap-4">
+          <DashboardStatCard
+            className="order-md-1 order-1"
+            title="Personal Expenses"
+            value={`${totalPersonalExpenses} €`}
+          />
+          <DashboardStatCard
+            className="order-md-3 order-2"
+            title="Group Expenses"
+            value={`${totalGroupExpenses} €`}
+          />
+          <DashboardStatCard
+            className="order-md-2 order-3"
+            title="Actual Money Spent"
+            value={`${actualMoneySpent.toFixed(2)} €`}
+          />
+          <DashboardStatCard
+            className="order-md-4 order-4"
+            title="To Receive"
+            value={`${summary?.totalToReceive ?? "0.00"} €`}
+          />
+          <DashboardStatCard
+            className="order-md-6 order-5"
+            title="You Owe"
+            value={`${summary?.totalOwed ?? "0.00"} €`}
+          />
+          <DashboardStatCard
+            className="order-md-5 order-6"
+            title="Net Balance"
+            value={`${summary?.netBalance ?? "0.00"} €`}
+            valueClassName={
+              (summary?.netBalance ?? 0) >= 0
+                ? "text-green-500"
+                : "text-red-500"
+            }
+          />
+        </div>
+
+        <Card className="mt-8 shadow-md transition-shadow hover:shadow-lg">
+          <CardHeader>
+            <CardTitle>Expenses by Category</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <DashboardCategoryChart data={pieData} />
+              <TopCategoriesCard data={topCategories} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="mt-8 grid gap-8 xl:grid-cols-2">
+          <Card className="mt-8 shadow-md transition-shadow hover:shadow-lg">
+            <CardHeader>
+              <CardTitle>Top Groups</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TopGroupsChart data={topGroups} />
+            </CardContent>
+          </Card>
+
+          <Card className="mt-8 shadow-md transition-shadow hover:shadow-lg">
+            <CardHeader>
+              <CardTitle>Expenses Over Time</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DashboardMonthlyChart expenses={filteredExpenses} />
+            </CardContent>
+          </Card>
+        </div>
+        <Card className="mt-8 shadow-md transition-shadow hover:shadow-lg">
+          <CardHeader>
+            <CardTitle>Recent Expenses</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {recentExpenses.map((expense) => (
+              <RecentExpenseCard key={expense.expenseId} expense={expense} />
+            ))}
+          </CardContent>
+        </Card>
       </div>
-    </>
+    </PageLayout>
   )
 }
 

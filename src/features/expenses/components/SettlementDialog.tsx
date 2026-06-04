@@ -51,7 +51,7 @@ function SettlementDialog({ debt, open, onOpenChange, onSuccess }: Props) {
         })
       ).unwrap()
 
-      toast.success("Settlement created successfully!")
+      toast.success("Settlement recorded successfully!")
       onSuccess?.()
 
       onOpenChange(false)

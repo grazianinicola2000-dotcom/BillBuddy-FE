@@ -93,7 +93,7 @@ function CreateExpenseDialog({ groupId, members }: Props) {
       <DialogTrigger asChild>
         <Button>Add Expense</Button>
       </DialogTrigger>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-sm lg:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {isGroupExpense ? "Add Group Expense" : "Add Personal Expense"}

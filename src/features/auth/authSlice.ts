@@ -75,6 +75,33 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 )
 
+export const uploadProfileImage = createAsyncThunk(
+  "auth/uploadProfileImage",
+  async (file: File, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token")
+      const formData = new FormData()
+      formData.append("profile_img", file)
+      const response = await api.patch<UserDTO>(
+        "/users/me/profileImg",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>
+      return thunkAPI.rejectWithValue(
+        axiosError.response?.data?.message ?? "Failed to upload profile image"
+      )
+    }
+  }
+)
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -99,6 +126,9 @@ const authSlice = createSlice({
         state.isAuthenticated = true
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload
+      })
+      .addCase(uploadProfileImage.fulfilled, (state, action) => {
         state.user = action.payload
       })
       .addCase(loginUser.rejected, (state, action) => {

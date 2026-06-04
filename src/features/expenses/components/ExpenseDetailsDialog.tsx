@@ -45,7 +45,7 @@ function ExpenseDetailsDialog({ expense, open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-sm lg:max-w-lg">
         <DialogHeader>
           <DialogTitle>{expense.title}</DialogTitle>
         </DialogHeader>
