@@ -8,7 +8,11 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useAppDispatch } from "@/app/hooks"
-import { deleteExpense } from "../expenseSlice"
+import {
+  deleteExpense,
+  fetchGroupExpenses,
+  fetchPersonalExpenses,
+} from "../expenseSlice"
 import { toast } from "sonner"
 import {
   AlertDialogContent,
@@ -21,6 +25,7 @@ import {
   AlertDialog,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog"
+import { fetchGroupSplitBalances, fetchGroupSummary } from "../balanceSlice"
 
 interface Props {
   expense: ExpenseDTO
@@ -34,6 +39,13 @@ function ExpenseDetailsDialog({ expense, open, onOpenChange }: Props) {
   const handleDelete = async () => {
     try {
       await dispatch(deleteExpense(expense.expenseId)).unwrap()
+      if (expense.groupId) {
+        await dispatch(fetchGroupExpenses(expense.groupId))
+        await dispatch(fetchGroupSummary(expense.groupId))
+        await dispatch(fetchGroupSplitBalances(expense.groupId))
+      } else {
+        await dispatch(fetchPersonalExpenses())
+      }
 
       toast.success("Expense deleted")
 
