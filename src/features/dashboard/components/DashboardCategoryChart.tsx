@@ -16,7 +16,7 @@ function DashboardCategoryChart({ data }: Props) {
             data={data}
             dataKey="value"
             nameKey="name"
-            outerRadius={120}
+            outerRadius={110}
             label
           />
           <Tooltip />
