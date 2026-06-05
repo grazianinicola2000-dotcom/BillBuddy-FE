@@ -16,7 +16,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { searchUsers } from "@/features/users/userSlice"
+import { searchUsers } from "@/features/users/userService"
 import { sendInvite } from "@/features/invites/InviteSlice"
 import type { PublicUserDTO } from "@/features/users/type"
 import { toast } from "sonner"

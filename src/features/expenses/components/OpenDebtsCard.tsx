@@ -8,6 +8,7 @@ import { fetchGroupSummary, fetchGroupSplitBalances } from "../balanceSlice"
 import { createSettlement } from "../expenseSlice"
 import { toast } from "sonner"
 import { getErrorMessage } from "@/lib/errorUtils"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Props {
   debts: SplitBalanceDTO[]
@@ -30,6 +31,7 @@ function OpenDebtsCard({ debts, currentUserId, groupId, currencyCode }: Props) {
   }
 
   const handleSettleAll = async () => {
+    setSettlingAll(true)
     try {
       for (const debt of myDebts) {
         await dispatch(
@@ -58,11 +60,6 @@ function OpenDebtsCard({ debts, currentUserId, groupId, currencyCode }: Props) {
   const myDebts = openDebts.filter((debt) => debt.debtorId === currentUserId)
 
   const displayedDebts = activeTab === "all" ? openDebts : myDebts
-
-  const totalOpenDebt = openDebts.reduce(
-    (sum, debt) => sum + debt.remainingDebt,
-    0
-  )
 
   const myTotalDebt = myDebts.reduce((sum, debt) => sum + debt.remainingDebt, 0)
 
@@ -94,56 +91,57 @@ function OpenDebtsCard({ debts, currentUserId, groupId, currencyCode }: Props) {
           {displayedDebts.length === 0 ? (
             <p className="text-muted-foreground">No open debts 🎉</p>
           ) : (
-            <div className="space-y-3">
-              {displayedDebts.map((debt) => (
-                <div
-                  key={debt.expenseSplitId}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div>
-                    <p className="font-medium">{debt.expenseTitle}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {debt.debtorUsername}
-                      {" → "}
-                      {debt.creditorUsername}
-                    </p>
+            <ScrollArea className="h-60">
+              <div className="space-y-3 pr-4">
+                {displayedDebts.map((debt) => (
+                  <div
+                    key={debt.expenseSplitId}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{debt.expenseTitle}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {debt.debtorUsername}
+                        {" → "}
+                        {debt.creditorUsername}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span>
+                        {debt.remainingDebt} {debt.currencyCode}
+                      </span>
+                      {activeTab === "mine" && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setSelectedDebt(debt)
+                            setOpenDialog(true)
+                          }}
+                        >
+                          Settle
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span>
-                      {debt.remainingDebt} {debt.currencyCode}
-                    </span>
-                    {activeTab === "mine" && (
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setSelectedDebt(debt)
-                          setOpenDialog(true)
-                        }}
-                      >
-                        Settle
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+          {activeTab === "mine" && (
+            <div className="mt-4 flex items-center justify-between border-t pt-4">
+              <div>
+                <p className="text-sm text-muted-foreground">My Open Debt</p>
+                <p className="font-semibold">
+                  {myTotalDebt.toFixed(2)} {currencyCode}
+                </p>
+              </div>
+              {myDebts.length > 0 && (
+                <Button onClick={handleSettleAll} disabled={settlingAll}>
+                  {settlingAll ? "Settling..." : "Settle All"}
+                </Button>
+              )}
             </div>
           )}
-          <div className="mt-4 flex items-center justify-between border-t pt-4">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {activeTab === "all" ? "Total Open Debt" : "My Open Debt"}
-              </p>
-              <p className="font-semibold">
-                {activeTab === "all" ? totalOpenDebt : myTotalDebt}{" "}
-                {currencyCode}
-              </p>
-            </div>
-            {activeTab === "mine" && myDebts.length > 0 && (
-              <Button onClick={handleSettleAll} disabled={settlingAll}>
-                {settlingAll ? "Settling..." : "Settle All"}
-              </Button>
-            )}
-          </div>
         </CardContent>
       </Card>
       {selectedDebt && (

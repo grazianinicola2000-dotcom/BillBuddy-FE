@@ -163,7 +163,7 @@ function DashboardPage() {
           />
           <DashboardStatCard
             className="order-md-2 order-3"
-            title="Actual Money Spent"
+            title="Effective Spending"
             value={`${actualMoneySpent.toFixed(2)} €`}
           />
           <DashboardStatCard

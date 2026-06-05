@@ -30,6 +30,7 @@ import {
 import { Card } from "@/components/ui/card"
 import type { GroupMemberDTO } from "@/features/groups/types"
 import type { CurrencyCode } from "../types"
+import { fetchGroupSplitBalances, fetchGroupSummary } from "../balanceSlice"
 
 interface Props {
   groupId?: string
@@ -79,6 +80,8 @@ function CreateExpenseDialog({ groupId, members }: Props) {
       toast.success("Expense created successfully!")
       if (groupId) {
         dispatch(fetchGroupExpenses(groupId))
+        await dispatch(fetchGroupSummary(groupId))
+        await dispatch(fetchGroupSplitBalances(groupId))
         setOpen(false)
       } else {
         dispatch(fetchPersonalExpenses())
