@@ -39,17 +39,25 @@ function DashboardPage() {
     dispatch(fetchGlobalSummary())
   }, [dispatch])
 
-  const totalPersonalExpenses =
-    personalExpenses?.content.reduce(
-      (sum, expense) => sum + expense.totalAmount,
-      0
-    ) ?? 0
+  const filteredPersonalExpenses =
+    personalExpenses?.content.filter(
+      (expense) => new Date(expense.expenseDate).getFullYear() === selectedYear
+    ) ?? []
 
-  const totalGroupExpenses =
-    myGroupExpenses?.content.reduce(
-      (sum, expense) => sum + expense.totalAmount,
-      0
-    ) ?? 0
+  const filteredGroupExpenses =
+    myGroupExpenses?.content.filter(
+      (expense) => new Date(expense.expenseDate).getFullYear() === selectedYear
+    ) ?? []
+
+  const totalPersonalExpenses = filteredPersonalExpenses.reduce(
+    (sum, expense) => sum + expense.totalAmount,
+    0
+  )
+
+  const totalGroupExpenses = filteredGroupExpenses.reduce(
+    (sum, expense) => sum + expense.totalAmount,
+    0
+  )
 
   const summary = globalSummary?.[0]
 
