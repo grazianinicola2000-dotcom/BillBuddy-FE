@@ -86,4 +86,4 @@ The application will be available according to your local Vite configuration.
 
 ## Project Status
 
-Version 1.0.0 – Stable Release
+Version 1.0.1 – Stable Release
